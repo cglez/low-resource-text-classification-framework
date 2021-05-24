@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 if [[ "$OSTYPE" == "darwin"* ]] || [[ "$OSTYPE" == "linux"* ]]; then
 realpath() {
@@ -11,7 +12,9 @@ base_dir=`realpath "${curr_dir}"/data/`
 raw_dir=`realpath "${base_dir}"/raw/`
 python_path=`realpath "${curr_dir}"/../`
 
-mkdir "$raw_dir"
+if [ ! -d "$raw_dir" ]; then
+    mkdir "$raw_dir"
+fi
 cd "$raw_dir"
 echo "$raw_dir"
 
@@ -58,6 +61,9 @@ if [ ! -f ag_news.tar.gz ] && [ ! -d ag_news ]; then
   curl -L -b cookies.txt -o $filename \
        'https://docs.google.com/uc?export=download&id='$fileid'&confirm='$(<confirm.txt)
   rm -f confirm.txt cookies.txt
+
+  #https://raw.githubusercontent.com/mhjabreel/CharCnn_Keras/raw/master/data/ag_news_csv/train.csv
+  #https://raw.githubusercontent.com/mhjabreel/CharCnn_Keras/master/data/ag_news_csv/test.csv
 fi
 if [ ! -d ag_news_imbalanced_1 ]; then
   tar -xzf ag_news.tar.gz
@@ -96,7 +102,7 @@ if [ ! -d trec ]; then
 fi
 
 #### cola
-if [ ! -f "./cola/dev.csv" ]; then
+if [ ! -f "./cola/test.csv" ]; then
   echo '** Downloading CoLA files **'
   curl https://nyu-mll.github.io/CoLA/cola_public_1.1.zip -o cola.zip
   unzip cola.zip -d ./cola
