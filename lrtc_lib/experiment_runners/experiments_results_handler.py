@@ -57,7 +57,7 @@ def save_results(res_file_name: str, res_dicts: list):
 
 
 def get_results_files_paths(experiment_name, start_timestamp, repeats_num=None, prefix=None):
-    res_dir = os.path.join(get_output_dir(), experiment_name + '_' + start_timestamp, "results")
+    res_dir = os.path.join(get_output_dir(), experiment_name + '_' + start_timestamp)
     os.makedirs(res_dir, exist_ok=True)
 
     experiment_name = experiment_name if prefix is None else prefix + '_' + experiment_name

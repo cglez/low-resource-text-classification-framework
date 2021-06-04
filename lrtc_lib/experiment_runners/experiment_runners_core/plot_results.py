@@ -38,10 +38,9 @@ def plot_metric(dataset, metric, df, output_path):
     plt.close()
 
 
-def plot_results(path):
+def plot_results(path, metrics=["accuracy", "f1"]):
     df = pd.read_csv(path)
     datasets = df["dataset"].unique()
-    metrics = ["accuracy"]
     for dataset in datasets:
         sub_df = df[df["dataset"] == dataset]
         for metric in metrics:

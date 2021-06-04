@@ -32,6 +32,9 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         with open(sys.argv[1]) as file:
             config = json.load(file)
+    else:
+        print("Invalid number of arguments.")
+        print(f"Usage: {sys.argv[0]} config.json")
 
     # define experiments parameters
     experiment_name = config['experiment_name']
@@ -51,6 +54,11 @@ if __name__ == '__main__':
 
     results_file_path, results_file_path_aggregated = res_handler.get_results_files_paths(
         experiment_name=experiment_name, start_timestamp=start_timestamp, repeats_num=num_experiment_repeats)
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
+        filename=os.path.join(Path(results_file_path).parent, 'info.log'))
 
     save_config(Path(results_file_path).parent,
                 experiment_name, experiment_runner,

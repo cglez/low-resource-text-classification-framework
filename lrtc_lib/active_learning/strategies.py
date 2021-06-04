@@ -35,16 +35,37 @@ class ActiveLearningStrategies(object):
     PERCEPTRON_ENSEMBLE = ActiveLearningStrategy("PERCEPTRON_ENSEMBLE")
 
 
+embedding_based_strategies = {
+    ActiveLearningStrategies.CORE_SET,
+    ActiveLearningStrategies.DAL,
+    ActiveLearningStrategies.GREEDY_CORE_SET,
+    ActiveLearningStrategies.DROPOUT_PERCEPTRON,
+    ActiveLearningStrategies.PERCEPTRON_ENSEMBLE,
+}
+
+
 def get_compatible_models(model_type, active_learning_strategy):
     embedding_based_models = {ModelTypes.HFBERT}
     all_models = ModelTypes.get_all_types()
-
-    embedding_based_strategies = {ActiveLearningStrategies.CORE_SET, ActiveLearningStrategies.DAL,
-                                  ActiveLearningStrategies.GREEDY_CORE_SET,
-                                  ActiveLearningStrategies.DROPOUT_PERCEPTRON,
-                                  ActiveLearningStrategies.PERCEPTRON_ENSEMBLE}
 
     if active_learning_strategy in embedding_based_strategies:
         return model_type in embedding_based_models
     else:
         return model_type in all_models
+
+
+strategy_names_in_paper = {
+    ActiveLearningStrategies.RANDOM: "Random",
+    ActiveLearningStrategies.HARD_MINING: "LC", #?
+    ActiveLearningStrategies.RETROSPECTIVE: "EGL", #?
+    ActiveLearningStrategies.CORE_SET: "", #("CORE_SET")
+    ActiveLearningStrategies.GREEDY_CORE_SET: "Core-Set",
+    ActiveLearningStrategies.DAL: "DAL",
+    ActiveLearningStrategies.DROPOUT_PERCEPTRON: "Dropout",
+    ActiveLearningStrategies.PERCEPTRON_ENSEMBLE: "PE",
+}
+
+
+def get_strategy_name_in_paper(strategy: ActiveLearningStrategy) -> str:
+    return strategy_names_in_paper[strategy]
+
