@@ -45,6 +45,15 @@ train_and_dev_sets_selector = training_set_selector_factory.get_training_set_sel
     selector=training_set_selection_strategy)
 
 
+def get_workspace_id(experiment_name: str, dataset: str, category: str, model_name: str, repeat: int):
+    return f'{experiment_name}-{dataset}-{category}-{model_name}-{repeat}'
+
+
+def generate_random_seed(string: str) -> int:
+    random_seed = sum([ord(c) for c in string])
+    return random_seed
+
+
 def _delete_orphan_labels():
     """
     delete labels that are not attached to a known workspace

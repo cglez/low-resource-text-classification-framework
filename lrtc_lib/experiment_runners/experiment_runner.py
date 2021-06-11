@@ -132,7 +132,7 @@ class ExperimentRunner(object, metaclass=abc.ABCMeta):
         if dev_text_elements_and_labels is not None:
             orchestrator_api.set_labels(config.workspace_id, dev_text_elements_and_labels)
 
-        random_seed = sum([ord(c) for c in config.workspace_id])
+        random_seed = orchestrator_api.generate_random_seed(config.workspace_id)
         logging.info(str(config))
         logging.info(f'random seed: {random_seed}')
 
@@ -199,11 +199,13 @@ class ExperimentRunner(object, metaclass=abc.ABCMeta):
     def evaluate(self, config: ExperimentParams, al, iteration, eval_dataset,
                  suggested_text_elements_for_labeling=None):
         metadata_dict = res_handler.generate_metadata_dict(config, eval_dataset, al, iteration)
+        reproducibility_dict = res_handler.generate_reproducibility_dict(config, al, iteration)
         labels_counts_dict = res_handler.generate_train_labels_counts_dict(config)
         performance_dict = res_handler.generate_performance_metrics_dict(config, eval_dataset)
         experiment_specific_metrics_dict = \
             self.generate_additional_metrics_dict(config, suggested_text_elements_for_labeling)
-        res_dict = {**metadata_dict, **labels_counts_dict, **performance_dict, **experiment_specific_metrics_dict}
+        res_dict = {**metadata_dict, **reproducibility_dict, **labels_counts_dict, **performance_dict,
+                    **experiment_specific_metrics_dict}
         return res_dict
 
     @abc.abstractmethod

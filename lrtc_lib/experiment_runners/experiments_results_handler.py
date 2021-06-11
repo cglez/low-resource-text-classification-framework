@@ -24,6 +24,15 @@ def generate_metadata_dict(config, eval_dataset, al, iteration_num):
     return res_dict
 
 
+def generate_reproducibility_dict(config, al, iteration_num):
+    if iteration_num == 0:
+        random_seed = orchestrator_api.generate_random_seed(config.workspace_id)
+    else:
+        random_seed = "NA"
+    reproducibility_dict = {'seed': random_seed}
+    return reproducibility_dict
+
+
 def generate_train_labels_counts_dict(config):
     counts_dict = {}
     counts = orchestrator_api.get_label_counts(config.workspace_id, config.train_dataset_name, config.category_name)
