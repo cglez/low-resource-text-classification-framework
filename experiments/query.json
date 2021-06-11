@@ -1,5 +1,5 @@
 {
-    "experiment_name": "query_hfbert",
+    "experiment_name": "query",
     "runner": {
         "type": "ExperimentRunnerImbalancedPractical",
         "params": {
@@ -22,7 +22,8 @@
     "classification_models": {
         "HFBERT": {
             "metric": "f1"
-        }
+        },
+        "NB": {}
     },
     "datasets_categories_and_queries": {
         "ag_news_imbalanced_1": {

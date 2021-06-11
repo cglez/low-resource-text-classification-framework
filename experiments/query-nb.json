@@ -1,5 +1,5 @@
 {
-    "experiment_name": "imbpr_nb_all",
+    "experiment_name": "query_nb",
     "runner": {
         "type": "ExperimentRunnerImbalancedPractical",
         "params": {
