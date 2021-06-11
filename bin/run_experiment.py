@@ -5,25 +5,20 @@
 
 import datetime
 import logging
-import random
-import re
+import os
 import sys
 import json
 from pathlib import Path
 from collections import defaultdict
-from typing import Dict, List
 
 import lrtc_lib.experiment_runners.experiments_results_handler as res_handler
-from lrtc_lib.experiment_runners.experiment_runner import ExperimentRunner, ExperimentParams
+from lrtc_lib.experiment_runners.experiment_runner import ExperimentParams
 from lrtc_lib.experiment_runners.experiment_runner_types import instantiate_experiment_runner
 from lrtc_lib.experiment_runners.experiment_runners_core.plot_results import plot_results
 from lrtc_lib.experiment_runners.experiment_runners_core.save_config import save_config
-from lrtc_lib.oracle_data_access import oracle_data_access_api
 from lrtc_lib.active_learning.strategies import ActiveLearningStrategies
-from lrtc_lib.data_access.core.data_structs import Label, TextElement
-from lrtc_lib.orchestrator import orchestrator_api
-from lrtc_lib.orchestrator.orchestrator_api import LABEL_NEGATIVE
 from lrtc_lib.train_and_infer_service.model_type import ModelTypes
+from lrtc_lib.orchestrator.orchestrator_api import get_workspace_id
 
 
 if __name__ == '__main__':
@@ -34,7 +29,7 @@ if __name__ == '__main__':
             config = json.load(file)
     else:
         print("Invalid number of arguments.")
-        print(f"Usage: {sys.argv[0]} config.json")
+        print(f"Usage: {sys.argv[0]} <config.json>")
 
     # define experiments parameters
     experiment_name = config['experiment_name']
@@ -58,16 +53,18 @@ if __name__ == '__main__':
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
-        filename=os.path.join(Path(results_file_path).parent, 'info.log'))
+        filename=os.path.join(Path(results_file_path).parent, 'experiment.log'))
 
-    save_config(Path(results_file_path).parent,
-                experiment_name, experiment_runner,
-                active_learning_iterations_num,
-                num_experiment_repeats,
-                datasets_categories_and_queries,
-                classification_models,
-                train_params,
-                active_learning_strategies)
+    save_config(
+        str(Path(results_file_path).parent),
+        experiment_name,
+        experiment_runner,
+        active_learning_iterations_num,
+        num_experiment_repeats,
+        datasets_categories_and_queries,
+        classification_models,
+        train_params,
+        active_learning_strategies)
 
     for dataset in datasets_categories_and_queries:
         for category in datasets_categories_and_queries[dataset]:
@@ -80,7 +77,7 @@ if __name__ == '__main__':
                         dev_dataset_name=dataset + '_dev',
                         test_dataset_name=dataset + '_test',
                         category_name=category,
-                        workspace_id=f'{experiment_name}-{dataset}-{category}-{model.name}-{repeat}',
+                        workspace_id=get_workspace_id(experiment_name, dataset, category, model.name, repeat),
                         model=model,
                         active_learning_strategies=active_learning_strategies,
                         repeat_id=repeat,
@@ -101,4 +98,3 @@ if __name__ == '__main__':
                     agg_res_dicts = res_handler.avg_res_dicts(results_all_repeats)
                     res_handler.save_results(results_file_path_aggregated, agg_res_dicts)
     plot_results(results_file_path)
-
