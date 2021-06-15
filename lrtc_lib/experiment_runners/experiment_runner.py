@@ -12,8 +12,6 @@ from typing import List
 import numpy as np
 from dataclasses import dataclass
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
-
 import lrtc_lib.data_access.data_access_factory as data_access_factory
 import lrtc_lib.experiment_runners.experiments_results_handler as res_handler
 from lrtc_lib.oracle_data_access import oracle_data_access_api

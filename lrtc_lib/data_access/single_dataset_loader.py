@@ -17,8 +17,6 @@ from lrtc_lib.data_access.processors.dataset_part import DatasetPart
 import lrtc_lib.data_access.processors.data_processor_factory as data_processor_factory
 import logging
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
-
 
 def load_dataset(dataset_name: str, force_new=False, processor_factory=data_processor_factory) -> List[Document]:
     """
@@ -58,6 +56,8 @@ def clear_all_saved_files(dataset_name):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
+
     all_dataset_sources = ['ag_news', 'ag_news_imbalanced_1', 'cola', 'isear',
                            'polarity', 'polarity_imbalanced_positive',
                            'subjectivity', 'subjectivity_imbalanced_subjective', 'trec', 'wiki_attack']

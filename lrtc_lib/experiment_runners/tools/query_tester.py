@@ -14,13 +14,13 @@ from lrtc_lib.oracle_data_access import oracle_data_access_api
 from lrtc_lib.data_access.processors.dataset_part import DatasetPart
 from lrtc_lib.orchestrator.orchestrator_api import LABEL_POSITIVE
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
-
 POSITIVE_SAMPLE_SIZE = 10 ** 6
 MIN_TERMS_NUM = 3
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
+
     datasets_categories_queries = {'trec': {'LOC': ['Where|countr.*|cit.*']}}
     data_access = data_access_factory.get_data_access()
     dataset_part = DatasetPart.DEV

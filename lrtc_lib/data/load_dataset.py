@@ -9,8 +9,6 @@ from lrtc_lib.data_access import single_dataset_loader
 from lrtc_lib.data_access.processors.dataset_part import DatasetPart
 from lrtc_lib.oracle_data_access import gold_labels_loader
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
-
 
 def load(dataset: str, force_new: bool = False):
     for part in DatasetPart:
@@ -27,5 +25,6 @@ def load(dataset: str, force_new: bool = False):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
     dataset_name = 'polarity'
     load(dataset=dataset_name)
