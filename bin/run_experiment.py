@@ -26,9 +26,9 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument("config", help="configuration JSON file")
-    parser.add_argument("--experiment_name")
+    parser.add_argument("--name")
     parser.add_argument("--num_iterations", type=int)
-    parser.add_argument("--num_repeats", type=int)
+    parser.add_argument("--repeats", type=int)
     parser.add_argument("--starting_repeat_id", type=int, default=1)
     parser.add_argument("--datasets")
     parser.add_argument("--models")
@@ -39,16 +39,16 @@ if __name__ == '__main__':
         config = json.load(file)
 
     # define experiment parameters, with command arguments taking precedence
-    if args.experiment_name is not None:
-        experiment_name = args.experiment_name
+    if args.name is not None:
+        experiment_name = args.name
     else:
         experiment_name = config['experiment_name']
     if args.num_iterations is not None:
         active_learning_iterations_num = args.num_iterations
     else:
         active_learning_iterations_num = config['active_learning_iterations_num']
-    if args.num_repeats is not None:
-        num_experiment_repeats = args.num_repeats
+    if args.repeats is not None:
+        num_experiment_repeats = args.repeats
     else:
         num_experiment_repeats = config['num_experiment_repeats']
     # for full list of datasets and categories available run: python -m lrtc_lib.data_access.loaded_datasets_info
@@ -61,9 +61,7 @@ if __name__ == '__main__':
     if args.models is not None:
         classification_models = [model for model in classification_models if model.name in args.models.split(',')]
     train_params = {model: config['classification_models'][model.name] for model in classification_models}
-    active_learning_strategies = [
-        getattr(ActiveLearningStrategies, strategy) for strategy in config['active_learning_strategies']
-    ]
+    active_learning_strategies = [getattr(ActiveLearningStrategies, al) for al in config['active_learning_strategies']]
     if args.strategies is not None:
         active_learning_strategies = [
             strategy for strategy in active_learning_strategies if strategy.name in args.strategies.split(',')

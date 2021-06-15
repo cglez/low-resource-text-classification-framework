@@ -146,6 +146,7 @@ class ExperimentRunner(object, metaclass=abc.ABCMeta):
         eval_dataset = config.test_dataset_name
         res_dict = self.evaluate(config, al=self.NO_AL, iteration=0, eval_dataset=eval_dataset)
         res_dict.update(self.generate_al_batch_dict(config))  # ensures AL-related keys are in the results dictionary
+        res_dict.update({'model_id': new_model_id})
 
         logging.info(f'Evaluation on dataset: {eval_dataset}, iteration: 0, first model (id: {new_model_id}) '
                      f'repeat: {config.repeat_id}, is: {res_dict}\t'
@@ -173,6 +174,7 @@ class ExperimentRunner(object, metaclass=abc.ABCMeta):
         eval_dataset = config.test_dataset_name
         res_dict = self.evaluate(config, al.name, iteration, eval_dataset, suggested_text_elements)
         res_dict.update(al_batch_dict)
+        res_dict.update({'model_id': new_model_id})
 
         logging.info(f'Evaluation on dataset: {eval_dataset}, with AL: {al.name}, iteration: {iteration}, '
                      f'repeat: {config.repeat_id}, model (id: {new_model_id}) is: {res_dict}\t'
