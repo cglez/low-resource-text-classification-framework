@@ -56,9 +56,9 @@ def get_compatible_models(model_type, active_learning_strategy):
 
 strategy_names_in_paper = {
     ActiveLearningStrategies.RANDOM: "Random",
-    ActiveLearningStrategies.HARD_MINING: "LC", #?
-    ActiveLearningStrategies.RETROSPECTIVE: "EGL", #?
-    ActiveLearningStrategies.CORE_SET: "", #("CORE_SET")
+    ActiveLearningStrategies.HARD_MINING: "LC",
+    ActiveLearningStrategies.RETROSPECTIVE: "EGL",
+    ActiveLearningStrategies.CORE_SET: "",
     ActiveLearningStrategies.GREEDY_CORE_SET: "Core-Set",
     ActiveLearningStrategies.DAL: "DAL",
     ActiveLearningStrategies.DROPOUT_PERCEPTRON: "Dropout",
@@ -66,6 +66,6 @@ strategy_names_in_paper = {
 }
 
 
-def get_strategy_name_in_paper(strategy: ActiveLearningStrategy) -> str:
+def get_strategy_name_in_paper(strategy_name: str) -> str:
+    strategy = getattr(ActiveLearningStrategies, strategy_name)
     return strategy_names_in_paper[strategy]
-

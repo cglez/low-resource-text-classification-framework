@@ -23,7 +23,7 @@ def save_config(output_path: str, experiment_name: str, runner: ExperimentRunner
         'num_experiment_repeats': num_experiment_repeats,
         'active_learning_iterations_num': active_learning_iterations_num,
         'active_learning_strategies': [
-            strategy.name for strategy in active_learning_strategies
+            al.name for al in active_learning_strategies
         ],
         'classification_models': {
             model.name: train_params[model] for model in train_params if model in classification_models
