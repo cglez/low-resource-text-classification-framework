@@ -5,6 +5,7 @@
 
 import csv
 import os
+from collections import defaultdict
 
 from lrtc_lib.experiment_runners.experiment_runners_core.assessment.evaluate_predictions import evaluate_predictions
 from lrtc_lib.experiment_runners.experiment_runners_core.utils import get_output_dir
@@ -53,12 +54,12 @@ def generate_performance_metrics_dict(config, evaluation_dataset):
     return performance_metrics
 
 
-def save_results(res_file_name: str, res_dicts: list):
+def save_results(res_file_name: str, res_dicts: list, mode='a'):
     header = res_dicts[0].keys()
     if len(header) == 0:
         return
-    first_write_to_res_file = not os.path.exists(res_file_name)
-    with open(res_file_name, 'a', newline='') as f:
+    first_write_to_res_file = mode == 'w' or not os.path.exists(res_file_name)
+    with open(res_file_name, mode, newline='') as f:
         w = csv.DictWriter(f, header)
         if first_write_to_res_file:
             w.writeheader()
@@ -79,8 +80,27 @@ def get_results_files_paths(experiment_name, start_timestamp, repeats_num=None, 
     return results_file_path_all_experiment_repeats, results_file_path_aggregated
 
 
+def get_res_dicts(res_file_name, append_to=None):
+    def convert_value(value):
+        try:
+            converted_value = float(value)
+            return converted_value
+        except ValueError:
+            return value
+
+    results = append_to if append_to is not None else defaultdict(lambda: defaultdict(list))
+    with open(res_file_name) as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            dict_ = {key: convert_value(value) for key, value in row.items()}
+            al = row['AL']
+            iteration = row[ITERATION_HEADER]
+            results[al][iteration].append(dict_)
+    return results
+
+
 def avg_res_dicts(results_all_repeats):
-    avg_postfix = '_avg'
+    avg_postfix = ''
     avg_dict_per_al_iter = []
     for al in results_all_repeats:
         for iteration in results_all_repeats[al]:
