@@ -6,7 +6,7 @@
 import datetime
 import logging
 import os
-import sys
+import argparse
 import json
 from pathlib import Path
 from collections import defaultdict
@@ -24,32 +24,56 @@ from lrtc_lib.orchestrator.orchestrator_api import get_workspace_id
 if __name__ == '__main__':
     start_timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M")
 
-    if len(sys.argv) > 1:
-        with open(sys.argv[1]) as file:
-            config = json.load(file)
-    else:
-        print("Invalid number of arguments.")
-        print(f"Usage: {sys.argv[0]} <config.json>")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("config", help="configuration JSON file")
+    parser.add_argument("--experiment_name")
+    parser.add_argument("--num_iterations", type=int)
+    parser.add_argument("--num_repeats", type=int)
+    parser.add_argument("--starting_repeat_id", type=int, default=1)
+    parser.add_argument("--datasets")
+    parser.add_argument("--models")
+    parser.add_argument("--strategies")
+    args = parser.parse_args()
 
-    # define experiments parameters
-    experiment_name = config['experiment_name']
-    active_learning_iterations_num = config['active_learning_iterations_num']
-    num_experiment_repeats = config['num_experiment_repeats']
+    with open(args.config) as file:
+        config = json.load(file)
+
+    # define experiment parameters, with command arguments taking precedence
+    if args.experiment_name is not None:
+        experiment_name = args.experiment_name
+    else:
+        experiment_name = config['experiment_name']
+    if args.num_iterations is not None:
+        active_learning_iterations_num = args.num_iterations
+    else:
+        active_learning_iterations_num = config['active_learning_iterations_num']
+    if args.num_repeats is not None:
+        num_experiment_repeats = args.num_repeats
+    else:
+        num_experiment_repeats = config['num_experiment_repeats']
     # for full list of datasets and categories available run: python -m lrtc_lib.data_access.loaded_datasets_info
     datasets_categories_and_queries = config['datasets_categories_and_queries']
+    if args.datasets is not None:
+        datasets_categories_and_queries = {
+            k: v for k, v in datasets_categories_and_queries.items() if k in args.datasets.split(',')
+        }
     classification_models = [getattr(ModelTypes, model) for model in config['classification_models']]
-    train_params = {
-        getattr(ModelTypes, model): config['classification_models'][model] for model in config['classification_models']
-    }
+    if args.models is not None:
+        classification_models = [model for model in classification_models if model.name in args.models.split(',')]
+    train_params = {model: config['classification_models'][model.name] for model in classification_models}
     active_learning_strategies = [
         getattr(ActiveLearningStrategies, strategy) for strategy in config['active_learning_strategies']
     ]
+    if args.strategies is not None:
+        active_learning_strategies = [
+            strategy for strategy in active_learning_strategies if strategy.name in args.strategies.split(',')
+        ]
 
     experiment_runner = instantiate_experiment_runner(config)
 
     results_file_path, results_file_path_aggregated = res_handler.get_results_files_paths(
         experiment_name=experiment_name, start_timestamp=start_timestamp, repeats_num=num_experiment_repeats)
-    
+
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
@@ -70,7 +94,7 @@ if __name__ == '__main__':
         for category in datasets_categories_and_queries[dataset]:
             for model in classification_models:
                 results_all_repeats = defaultdict(lambda: defaultdict(list))
-                for repeat in range(1, num_experiment_repeats + 1):
+                for repeat in range(args.starting_repeat_id, num_experiment_repeats + 1):
                     config = ExperimentParams(
                         experiment_name=experiment_name,
                         train_dataset_name=dataset + '_train',
