@@ -14,7 +14,7 @@ from collections import defaultdict
 import lrtc_lib.experiment_runners.experiments_results_handler as res_handler
 from lrtc_lib.experiment_runners.experiment_runner import ExperimentParams
 from lrtc_lib.experiment_runners.experiment_runner_types import instantiate_experiment_runner
-from lrtc_lib.experiment_runners.experiment_runners_core.plot_results import plot_results
+from lrtc_lib.experiment_runners.tools.plot_results import plot_results
 from lrtc_lib.experiment_runners.experiment_runners_core.save_config import save_config
 from lrtc_lib.active_learning.strategies import ActiveLearningStrategies
 from lrtc_lib.train_and_infer_service.model_type import ModelTypes

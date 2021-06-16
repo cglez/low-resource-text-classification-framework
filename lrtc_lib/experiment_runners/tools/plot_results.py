@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 
 from lrtc_lib.active_learning.strategies import get_strategy_name_in_paper
 from lrtc_lib.experiment_runners.experiment_runner import ExperimentRunner
+from lrtc_lib.experiment_runners.experiments_results_handler import TRAIN_TOTAL_COUNT_HEADER
 
 sns.set_theme()
 sns.set_palette("tab10")
@@ -23,22 +24,24 @@ def plot_metric(dataset, metric, df, output_path):
     """
     models = sorted(df["model"].unique())
     als = sorted(df["AL"].unique())
-    x_col = "train total count"
+    x_col = TRAIN_TOTAL_COUNT_HEADER
     for model in models:
         for al in als:
             if al == ExperimentRunner.NO_AL:
                 continue
-            model_df_all = df[(df["model"] == model) & ((df["AL"] == al) | (df["AL"] == "no_active_learning"))]
+            model_df_all = df[(df["model"] == model) & ((df["AL"] == al) | (df["AL"] == ExperimentRunner.NO_AL))]
             model_df = model_df_all[[x_col, metric]]
             model_df = model_df.dropna(axis=0)
             model_df = model_df.groupby(x_col, as_index=False).mean()
+            if len(model_df[x_col]) <= 1:
+                continue  # skip lines with a single point (e.g. incompatible AL-model pairs)
             x = model_df[x_col]
             y = model_df[metric]
             al_name = get_strategy_name_in_paper(al)
-            ax = sns.lineplot(x=x, y=y, label=f'{model}:{al_name}')
+            ax = sns.lineplot(x=x, y=y, label=f'{model}:{al_name}', linestyle='dashed' if al == "RANDOM" else 'solid')
     plt.title(dataset)
     plt.savefig(os.path.join(output_path, f"{dataset}_{metric}"))
-    plt.show()
+    # plt.show()
     plt.close()
 
 
@@ -55,9 +58,10 @@ def plot_results(path, metrics=None):
 
 
 if __name__ == '__main__':
-    import sys
-    if len(sys.argv) != 2:
-        print("Invalid number of arguments.")
-        print(f"Usage: {sys.argv[0]} <file.csv>")
-        exit(1)
-    plot_results(sys.argv[1])
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Plot the results in a CSV file per dataset and metric")
+    parser.add_argument("csv_file")
+    args = parser.parse_args()
+
+    plot_results(args.csv_file)

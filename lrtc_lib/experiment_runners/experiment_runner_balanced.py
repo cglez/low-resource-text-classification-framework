@@ -14,7 +14,7 @@ from lrtc_lib.oracle_data_access import oracle_data_access_api
 from lrtc_lib.active_learning.strategies import ActiveLearningStrategies
 from lrtc_lib.data_access.core.data_structs import TextElement
 from lrtc_lib.orchestrator import orchestrator_api
-from lrtc_lib.experiment_runners.experiment_runners_core.plot_results import plot_results
+from lrtc_lib.experiment_runners.tools.plot_results import plot_results
 from lrtc_lib.train_and_infer_service.model_type import ModelTypes
 
 

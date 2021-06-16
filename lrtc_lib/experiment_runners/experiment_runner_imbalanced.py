@@ -10,7 +10,7 @@ from typing import List
 
 import lrtc_lib.experiment_runners.experiments_results_handler as res_handler
 from lrtc_lib.experiment_runners.experiment_runner import ExperimentRunner, ExperimentParams
-from lrtc_lib.experiment_runners.experiment_runners_core.plot_results import plot_results
+from lrtc_lib.experiment_runners.tools.plot_results import plot_results
 from lrtc_lib.oracle_data_access import oracle_data_access_api
 from lrtc_lib.active_learning.strategies import ActiveLearningStrategies
 from lrtc_lib.data_access.core.data_structs import Label, TextElement
