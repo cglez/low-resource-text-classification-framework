@@ -7,8 +7,8 @@ import csv
 import os
 from collections import defaultdict
 
-from lrtc_lib.experiment_runners.experiment_runners_core.assessment.evaluate_predictions import evaluate_predictions
-from lrtc_lib.experiment_runners.experiment_runners_core.utils import get_output_dir
+from lrtc_lib.experiment_runners.core.assessment.evaluate_predictions import evaluate_predictions
+from lrtc_lib.experiment_runners.core.utils import get_output_dir
 from lrtc_lib.oracle_data_access import oracle_data_access_api
 from lrtc_lib.orchestrator import orchestrator_api
 

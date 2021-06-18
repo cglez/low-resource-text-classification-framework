@@ -8,7 +8,7 @@ import logging
 import pandas as pd
 
 from sklearn.metrics import classification_report
-from lrtc_lib.experiment_runners.experiment_runners_core.utils import get_output_dir
+from lrtc_lib.experiment_runners.core.utils import get_output_dir
 from lrtc_lib.data_access import data_access_factory
 from lrtc_lib.oracle_data_access import oracle_data_access_api
 from lrtc_lib.data_access.processors.dataset_part import DatasetPart
