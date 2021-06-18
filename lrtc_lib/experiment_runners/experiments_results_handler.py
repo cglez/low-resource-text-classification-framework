@@ -17,6 +17,8 @@ TRAIN_POSITIVE_COUNT_HEADER = "train positive count"
 TRAIN_TOTAL_COUNT_HEADER = "train total count"
 ITERATION_HEADER = 'iteration number'
 REPEAT_HEADER = 'repeat id'
+RANDOM_SEED_HEADER = "seed"
+MODEL_ID_HEADER = "model id"
 
 
 def generate_metadata_dict(config, eval_dataset, al, iteration_num):
@@ -25,12 +27,8 @@ def generate_metadata_dict(config, eval_dataset, al, iteration_num):
     return res_dict
 
 
-def generate_reproducibility_dict(config, al, iteration_num):
-    if iteration_num == 0:
-        random_seed = orchestrator_api.generate_random_seed(config.workspace_id)
-    else:
-        random_seed = "NA"
-    reproducibility_dict = {'seed': random_seed}
+def generate_reproducibility_dict(model_id, random_seed="NA"):
+    reproducibility_dict = {MODEL_ID_HEADER: model_id, RANDOM_SEED_HEADER: random_seed}
     return reproducibility_dict
 
 

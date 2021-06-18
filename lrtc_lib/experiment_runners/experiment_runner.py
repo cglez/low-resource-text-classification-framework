@@ -146,7 +146,7 @@ class ExperimentRunner(object, metaclass=abc.ABCMeta):
         eval_dataset = config.test_dataset_name
         res_dict = self.evaluate(config, al=self.NO_AL, iteration=0, eval_dataset=eval_dataset)
         res_dict.update(self.generate_al_batch_dict(config))  # ensures AL-related keys are in the results dictionary
-        res_dict.update({'model_id': new_model_id})
+        res_dict.update(res_handler.generate_reproducibility_dict(new_model_id, random_seed=random_seed))
 
         logging.info(f'Evaluation on dataset: {eval_dataset}, iteration: 0, first model (id: {new_model_id}) '
                      f'repeat: {config.repeat_id}, is: {res_dict}\t'
@@ -174,7 +174,7 @@ class ExperimentRunner(object, metaclass=abc.ABCMeta):
         eval_dataset = config.test_dataset_name
         res_dict = self.evaluate(config, al.name, iteration, eval_dataset, suggested_text_elements)
         res_dict.update(al_batch_dict)
-        res_dict.update({'model_id': new_model_id})
+        res_dict.update(res_handler.generate_reproducibility_dict(new_model_id))
 
         logging.info(f'Evaluation on dataset: {eval_dataset}, with AL: {al.name}, iteration: {iteration}, '
                      f'repeat: {config.repeat_id}, model (id: {new_model_id}) is: {res_dict}\t'
@@ -199,13 +199,11 @@ class ExperimentRunner(object, metaclass=abc.ABCMeta):
     def evaluate(self, config: ExperimentParams, al, iteration, eval_dataset,
                  suggested_text_elements_for_labeling=None):
         metadata_dict = res_handler.generate_metadata_dict(config, eval_dataset, al, iteration)
-        reproducibility_dict = res_handler.generate_reproducibility_dict(config, al, iteration)
         labels_counts_dict = res_handler.generate_train_labels_counts_dict(config)
         performance_dict = res_handler.generate_performance_metrics_dict(config, eval_dataset)
         experiment_specific_metrics_dict = \
             self.generate_additional_metrics_dict(config, suggested_text_elements_for_labeling)
-        res_dict = {**metadata_dict, **reproducibility_dict, **labels_counts_dict, **performance_dict,
-                    **experiment_specific_metrics_dict}
+        res_dict = {**metadata_dict, **labels_counts_dict, **performance_dict, **experiment_specific_metrics_dict}
         return res_dict
 
     @abc.abstractmethod
