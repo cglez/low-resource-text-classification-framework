@@ -1,0 +1,48 @@
+{
+    "experiment_name": "imbalanced",
+    "runner": {
+        "type": "ExperimentRunnerImbalanced",
+        "params": {
+            "first_model_positives_num": 100,
+            "first_model_negatives_num": 100,
+            "active_learning_suggestions_num": 50
+        }
+    },
+    "num_experiment_repeats": 5,
+    "active_learning_iterations_num": 5,
+    "active_learning_strategies": [
+        "RANDOM",
+        "RETROSPECTIVE",
+        "HARD_MINING",
+        "GREEDY_CORE_SET",
+        "DAL",
+        "PERCEPTRON_ENSEMBLE",
+        "DROPOUT_PERCEPTRON"
+    ],
+    "classification_models": {
+        "HFBERT": {
+            "metric": "f1"
+        },
+        "NB": {}
+    },
+    "datasets_categories_and_config": {
+        "ag_news_imbalanced_1": [
+            "1"
+        ],
+        "isear": [
+            "fear"
+        ],
+        "polarity_imbalanced_positive": [
+            "positive"
+        ],
+        "subjectivity_imbalanced_subjective": [
+            "subjective"
+        ],
+        "trec": [
+            "LOC"
+        ],
+        "wiki_attack": [
+            "True"
+        ]
+    }
+}

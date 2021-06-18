@@ -27,7 +27,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("config", help="configuration JSON file")
     parser.add_argument("--name")
-    parser.add_argument("--num_iterations", type=int)
+    parser.add_argument("--iterations", type=int)
     parser.add_argument("--repeats", type=int)
     parser.add_argument("--starting_repeat_id", type=int, default=1)
     parser.add_argument("--datasets")
@@ -43,7 +43,7 @@ if __name__ == '__main__':
         experiment_name = args.name
     else:
         experiment_name = config['experiment_name']
-    if args.num_iterations is not None:
+    if args.iterations is not None:
         active_learning_iterations_num = args.num_iterations
     else:
         active_learning_iterations_num = config['active_learning_iterations_num']
@@ -52,10 +52,10 @@ if __name__ == '__main__':
     else:
         num_experiment_repeats = config['num_experiment_repeats']
     # for full list of datasets and categories available run: python -m lrtc_lib.data_access.loaded_datasets_info
-    datasets_categories_and_queries = config['datasets_categories_and_queries']
+    datasets_categories_and_config = config['datasets_categories_and_config']
     if args.datasets is not None:
-        datasets_categories_and_queries = {
-            k: v for k, v in datasets_categories_and_queries.items() if k in args.datasets.split(',')
+        datasets_categories_and_config = {
+            k: v for k, v in datasets_categories_and_config.items() if k in args.datasets.split(',')
         }
     classification_models = [getattr(ModelTypes, model) for model in config['classification_models']]
     if args.models is not None:
@@ -83,13 +83,13 @@ if __name__ == '__main__':
         experiment_runner,
         active_learning_iterations_num,
         num_experiment_repeats,
-        datasets_categories_and_queries,
+        datasets_categories_and_config,
         classification_models,
         train_params,
         active_learning_strategies)
 
-    for dataset in datasets_categories_and_queries:
-        for category in datasets_categories_and_queries[dataset]:
+    for dataset in datasets_categories_and_config:
+        for category in datasets_categories_and_config[dataset]:
             for model in classification_models:
                 results_all_repeats = defaultdict(lambda: defaultdict(list))
                 for repeat in range(args.starting_repeat_id, num_experiment_repeats + 1):

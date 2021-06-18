@@ -5,10 +5,10 @@ from lrtc_lib.experiment_runners.experiment_runner import ExperimentRunner
 
 def save_config(output_path: str, experiment_name: str, runner: ExperimentRunner,
                 active_learning_iterations_num: int, num_experiment_repeats: int,
-                datasets_categories_and_queries: dict, classification_models: list,
+                datasets_categories_and_config: dict, classification_models: list,
                 train_params: dict, active_learning_strategies: list):
     """
-    Save experiment runner configuration as JSON in the results folder.
+    Save experiment runner configuration as JSON.
     """
     config = {
         'experiment_name': experiment_name,
@@ -28,9 +28,8 @@ def save_config(output_path: str, experiment_name: str, runner: ExperimentRunner
         'classification_models': {
             model.name: train_params[model] for model in train_params if model in classification_models
         },
-        'datasets_categories_and_queries': datasets_categories_and_queries,
+        'datasets_categories_and_config': datasets_categories_and_config,
     }
-    
+
     with open(os.path.join(output_path, 'config.json'), 'w') as outfile:
         json.dump(config, outfile, indent=4)
-
