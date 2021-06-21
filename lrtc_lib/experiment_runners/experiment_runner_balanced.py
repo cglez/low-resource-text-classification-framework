@@ -120,4 +120,4 @@ if __name__ == '__main__':
                     agg_res_dicts = res_handler.avg_res_dicts(results_all_repeats)
                     res_handler.save_results(results_file_path_aggregated, agg_res_dicts)
 
-    plot_results(results_file_path)
+    plot_results([results_file_path])

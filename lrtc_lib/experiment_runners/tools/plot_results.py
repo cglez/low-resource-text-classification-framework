@@ -18,7 +18,7 @@ sns.set_theme()
 sns.set_palette("tab10")
 
 
-def plot_metric(dataset, metric, df, output_path):
+def plot_metric(dataset, metric, df, output_path, show=False):
     """
     Plot the results in the most basic fashion. No complex color markers labels etc.
     """
@@ -41,27 +41,33 @@ def plot_metric(dataset, metric, df, output_path):
             ax = sns.lineplot(x=x, y=y, label=f'{model}:{al_name}', linestyle='dashed' if al == "RANDOM" else 'solid')
     plt.title(dataset)
     plt.savefig(os.path.join(output_path, f"{dataset}_{metric}"))
-    # plt.show()
+    if show:
+        plt.show()
     plt.close()
 
 
-def plot_results(path, metrics=None):
-    all_metrics = ["accuracy", "f1"]
+def plot_results(paths: list, metrics=None, output_dir=None):
+    default_metrics = ["accuracy", "precision", "recall", "f1"]
     if metrics is None:
-        metrics = all_metrics
-    df = pd.read_csv(path)
+        metrics = default_metrics
+    if output_dir is None:
+        output_dir = Path(paths[-1]).parent
+    df = pd.concat((pd.read_csv(f) for f in paths))
     datasets = df["dataset"].unique()
     for dataset in datasets:
         sub_df = df[df["dataset"] == dataset]
         for metric in metrics:
-            plot_metric(dataset, metric, sub_df, Path(path).parent)
+            plot_metric(dataset, metric, sub_df, output_dir)
 
 
 if __name__ == '__main__':
     import argparse
 
-    parser = argparse.ArgumentParser(description="Plot the results in a CSV file per dataset and metric")
-    parser.add_argument("csv_file")
+    parser = argparse.ArgumentParser(description="Plot the results in the given CSV files, per dataset and metric")
+    parser.add_argument("csv_file", nargs="+")
+    parser.add_argument("-o", "--output-dir", help="Output directory")
+    parser.add_argument("--metrics", help="Comma-separated list of metrics to use")
     args = parser.parse_args()
 
-    plot_results(args.csv_file)
+    metrics = None if args.metrics is None else args.metrics.split(",")
+    plot_results(args.csv_file, metrics=metrics, output_dir=args.output_dir)
