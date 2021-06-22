@@ -29,7 +29,7 @@ if __name__ == '__main__':
     parser.add_argument("--name")
     parser.add_argument("--iterations", type=int)
     parser.add_argument("--repeats", type=int)
-    parser.add_argument("--starting_repeat_id", type=int, default=1)
+    parser.add_argument("--starting-repeat-id", type=int, default=1)
     parser.add_argument("--datasets")
     parser.add_argument("--models")
     parser.add_argument("--strategies")
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     else:
         experiment_name = config['experiment_name']
     if args.iterations is not None:
-        active_learning_iterations_num = args.num_iterations
+        active_learning_iterations_num = args.iterations
     else:
         active_learning_iterations_num = config['active_learning_iterations_num']
     if args.repeats is not None:

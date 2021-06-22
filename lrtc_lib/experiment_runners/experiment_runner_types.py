@@ -29,7 +29,7 @@ def instantiate_experiment_runner(config: dict) -> ExperimentRunner:
                 first_model_labeled_from_query_num=runner_params['first_model_positives_num'],
                 first_model_negatives_num=runner_params['first_model_negatives_num'],
                 active_learning_suggestions_num=runner_params['active_learning_suggestions_num'],
-                queries_per_dataset=config['datasets_categories_and_queries'])
+                queries_per_dataset=config['datasets_categories_and_config'])
     else:
         raise(RuntimeError(f"Unknown experiment runner type '{runner_type}'."))
 
