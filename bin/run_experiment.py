@@ -75,7 +75,10 @@ if __name__ == '__main__':
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
-        filename=os.path.join(Path(results_file_path).parent, 'experiment.log'))
+        handlers=[  # Log both to file and stderr
+            logging.FileHandler(os.path.join(Path(results_file_path).parent, 'experiment.log')),
+            logging.StreamHandler(),
+        ])
 
     save_config(
         str(Path(results_file_path).parent),
