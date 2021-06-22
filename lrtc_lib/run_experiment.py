@@ -24,15 +24,15 @@ from lrtc_lib.orchestrator.orchestrator_api import get_workspace_id
 if __name__ == '__main__':
     start_timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M")
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("config", help="configuration JSON file")
-    parser.add_argument("--name")
-    parser.add_argument("--iterations", type=int)
-    parser.add_argument("--repeats", type=int)
-    parser.add_argument("--starting-repeat-id", type=int, default=1)
-    parser.add_argument("--datasets")
-    parser.add_argument("--models")
-    parser.add_argument("--strategies")
+    parser = argparse.ArgumentParser(description="Run an Active Learning experiment")
+    parser.add_argument("--config", required=True, help="configuration JSON file")
+    parser.add_argument("--name", help="Experiment name")
+    parser.add_argument("--iterations", type=int, help="Number of active learning iterations")
+    parser.add_argument("--repeats", type=int, help="Number of repeats for each experiment")
+    parser.add_argument("--starting-repeat-id", type=int, default=1, help="The repetition id to start from")
+    parser.add_argument("--datasets", nargs='+', help="List of datasets to use")
+    parser.add_argument("--models", nargs='+', help="List of classifier model types to use")
+    parser.add_argument("--strategies", nargs='+', help="List of active learning strategies to use")
     args = parser.parse_args()
 
     with open(args.config) as file:
@@ -51,26 +51,28 @@ if __name__ == '__main__':
         num_experiment_repeats = args.repeats
     else:
         num_experiment_repeats = config['num_experiment_repeats']
+    starting_repeat_id = args.starting_repeat_id
     # for full list of datasets and categories available run: python -m lrtc_lib.data_access.loaded_datasets_info
     datasets_categories_and_config = config['datasets_categories_and_config']
     if args.datasets is not None:
         datasets_categories_and_config = {
-            k: v for k, v in datasets_categories_and_config.items() if k in args.datasets.split(',')
+            k: v for k, v in datasets_categories_and_config.items() if k in args.datasets
         }
     classification_models = [getattr(ModelTypes, model) for model in config['classification_models']]
     if args.models is not None:
-        classification_models = [model for model in classification_models if model.name in args.models.split(',')]
+        classification_models = [model for model in classification_models if model.name in args.models]
     train_params = {model: config['classification_models'][model.name] for model in classification_models}
     active_learning_strategies = [getattr(ActiveLearningStrategies, al) for al in config['active_learning_strategies']]
     if args.strategies is not None:
         active_learning_strategies = [
-            strategy for strategy in active_learning_strategies if strategy.name in args.strategies.split(',')
+            strategy for strategy in active_learning_strategies if strategy.name in args.strategies
         ]
 
     experiment_runner = instantiate_experiment_runner(config)
 
     results_file_path, results_file_path_aggregated = res_handler.get_results_files_paths(
-        experiment_name=experiment_name, start_timestamp=start_timestamp, repeats_num=num_experiment_repeats)
+        experiment_name=experiment_name, start_timestamp=start_timestamp,
+        repeats_num=num_experiment_repeats - starting_repeat_id)
 
     logging.basicConfig(
         level=logging.INFO,
@@ -95,7 +97,7 @@ if __name__ == '__main__':
         for category in datasets_categories_and_config[dataset]:
             for model in classification_models:
                 results_all_repeats = defaultdict(lambda: defaultdict(list))
-                for repeat in range(args.starting_repeat_id, num_experiment_repeats + 1):
+                for repeat in range(starting_repeat_id, num_experiment_repeats + 1):
                     config = ExperimentParams(
                         experiment_name=experiment_name,
                         train_dataset_name=dataset + '_train',
@@ -119,7 +121,7 @@ if __name__ == '__main__':
                             results_all_repeats[al][iteration].append(results_per_active_learning[al][iteration])
 
                 # aggregate the results of a single active learning iteration over num_experiment_repeats
-                if num_experiment_repeats > 1:
+                if num_experiment_repeats - starting_repeat_id > 1:
                     agg_res_dicts = res_handler.avg_res_dicts(results_all_repeats)
                     res_handler.save_results(results_file_path_aggregated, agg_res_dicts)
     plot_results([results_file_path])
