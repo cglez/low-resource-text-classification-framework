@@ -17,8 +17,12 @@ TRAIN_POSITIVE_COUNT_HEADER = "train positive count"
 TRAIN_TOTAL_COUNT_HEADER = "train total count"
 ITERATION_HEADER = 'iteration number'
 REPEAT_HEADER = 'repeat id'
-RANDOM_SEED_HEADER = "seed"
 MODEL_ID_HEADER = "model id"
+RANDOM_SEED_HEADER = "seed"
+ITERATION_RUNTIME_HEADER = "iteration runtime"
+SELECTION_RUNTIME_HEADER = "selection runtime"
+TRAIN_RUNTIME_HEADER = "train runtime"
+EVALUATION_RUNTIME_HEADER = "evaluation runtime"
 
 
 def generate_metadata_dict(config, eval_dataset, al, iteration_num):
@@ -30,6 +34,12 @@ def generate_metadata_dict(config, eval_dataset, al, iteration_num):
 def generate_reproducibility_dict(model_id, random_seed="NA"):
     reproducibility_dict = {MODEL_ID_HEADER: model_id, RANDOM_SEED_HEADER: random_seed}
     return reproducibility_dict
+
+
+def generate_runtime_dict(iteration_runtime, selection_runtime, train_runtime, evaluation_runtime):
+    runtime_dict = {ITERATION_RUNTIME_HEADER: iteration_runtime, SELECTION_RUNTIME_HEADER: selection_runtime,
+                    TRAIN_RUNTIME_HEADER: train_runtime, EVALUATION_RUNTIME_HEADER: evaluation_runtime}
+    return runtime_dict
 
 
 def generate_train_labels_counts_dict(config):

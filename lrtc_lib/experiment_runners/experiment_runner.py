@@ -5,7 +5,7 @@
 
 import abc
 import logging
-import time
+from timeit import default_timer as timer
 from collections import defaultdict
 from typing import List
 
@@ -67,7 +67,6 @@ class ExperimentRunner(object, metaclass=abc.ABCMeta):
         :param first_model_negatives_num: the number of negative instances to provide for the first model.
         :param active_learning_suggestions_num: the number of instances to be suggested by the active learning strategy
         for the training of the second model.
-
         """
         self.first_model_positives_num = first_model_positives_num
         self.first_model_negatives_num = first_model_negatives_num
@@ -117,6 +116,8 @@ class ExperimentRunner(object, metaclass=abc.ABCMeta):
         return results_per_active_learning
 
     def train_first_model(self, config: ExperimentParams):
+        iteration_start = timer()
+
         if orchestrator_api.workspace_exists(config.workspace_id):
             orchestrator_api.delete_workspace(config.workspace_id)
 
@@ -134,18 +135,32 @@ class ExperimentRunner(object, metaclass=abc.ABCMeta):
         logging.info(str(config))
         logging.info(f'random seed: {random_seed}')
 
+        start = timer()
         self.set_first_model_positives(config, random_seed)
         self.set_first_model_negatives(config, random_seed)
+        end = timer()
+        selection_runtime = end - start
 
         # train first model
         logging.info(f'Starting first model training (model: {config.model.name})\tworkspace: {config.workspace_id}')
-        new_model_id = orchestrator_api.train(config.workspace_id, config.category_name, config.model, train_params=config.train_params)
+        start = timer()
+        new_model_id = orchestrator_api.train(config.workspace_id, config.category_name, config.model,
+                                              train_params=config.train_params)
+        end = timer()
+        train_runtime = end - start
         if new_model_id is None:
             raise Exception(f'a new model was not trained\tworkspace: {config.workspace_id}')
 
         eval_dataset = config.test_dataset_name
+        start = timer()
         res_dict = self.evaluate(config, al=self.NO_AL, iteration=0, eval_dataset=eval_dataset)
+        end = timer()
+        evaluation_runtime = end - start
+
+        iteration_runtime = end - iteration_start
         res_dict.update(self.generate_al_batch_dict(config))  # ensures AL-related keys are in the results dictionary
+        res_dict.update(res_handler.generate_runtime_dict(iteration_runtime, selection_runtime, train_runtime,
+                                                          evaluation_runtime))
         res_dict.update(res_handler.generate_reproducibility_dict(new_model_id, random_seed=random_seed))
 
         logging.info(f'Evaluation on dataset: {eval_dataset}, iteration: 0, first model (id: {new_model_id}) '
@@ -155,8 +170,10 @@ class ExperimentRunner(object, metaclass=abc.ABCMeta):
         return res_dict
 
     def run_active_learning_iteration(self, config: ExperimentParams, al, iteration):
+        iteration_start = timer()
+
         # get suggested elements for labeling (and their gold labels)
-        suggested_text_elements, suggested_uris_and_gold_labels = \
+        suggested_text_elements, suggested_uris_and_gold_labels, selection_runtime = \
             self.get_suggested_elements_and_gold_labels(config, al)
 
         # calculate metrics for the batch suggested by the active learning strategy
@@ -166,14 +183,25 @@ class ExperimentRunner(object, metaclass=abc.ABCMeta):
         orchestrator_api.set_labels(config.workspace_id, suggested_uris_and_gold_labels)
 
         # train a new model with the additional elements suggested by the active learning strategy
-        new_model_id = orchestrator_api.train(config.workspace_id, config.category_name, config.model, train_params=config.train_params)
+        start = timer()
+        new_model_id = orchestrator_api.train(config.workspace_id, config.category_name, config.model,
+                                              train_params=config.train_params)
         if new_model_id is None:
             raise Exception('New model was not trained')
+        end = timer()
+        train_runtime = end - start
 
         # evaluate the new model
         eval_dataset = config.test_dataset_name
+        start = timer()
         res_dict = self.evaluate(config, al.name, iteration, eval_dataset, suggested_text_elements)
+        end = timer()
+        evaluation_runtime = end - start
+
+        iteration_runtime = end - iteration_start
         res_dict.update(al_batch_dict)
+        res_dict.update(res_handler.generate_runtime_dict(iteration_runtime, selection_runtime, train_runtime,
+                                                          evaluation_runtime))
         res_dict.update(res_handler.generate_reproducibility_dict(new_model_id))
 
         logging.info(f'Evaluation on dataset: {eval_dataset}, with AL: {al.name}, iteration: {iteration}, '
@@ -182,19 +210,20 @@ class ExperimentRunner(object, metaclass=abc.ABCMeta):
         return res_dict, new_model_id
 
     def get_suggested_elements_and_gold_labels(self, config, al):
-        start = time.time()
+        start = timer()
         suggested_text_elements_for_labeling = \
             orchestrator_api.get_elements_to_label(config.workspace_id, config.category_name,
                                                    self.active_learning_suggestions_num)
-        end = time.time()
+        end = timer()
+        runtime = end - start
         logging.info(f'{len(suggested_text_elements_for_labeling)} instances '
                      f'suggested by active learning strategy: {al.name} '
                      f'for dataset: {config.train_dataset_name} and category: {config.category_name}.\t'
-                     f'runtime: {end - start}\tworkspace: {config.workspace_id}')
+                     f'runtime: {runtime}\tworkspace: {config.workspace_id}')
         uris_for_labeling = [elem.uri for elem in suggested_text_elements_for_labeling]
         uris_and_gold_labels = oracle_data_access_api.get_gold_labels(config.train_dataset_name, uris_for_labeling,
                                                                       config.category_name)
-        return suggested_text_elements_for_labeling, uris_and_gold_labels
+        return suggested_text_elements_for_labeling, uris_and_gold_labels, runtime
 
     def evaluate(self, config: ExperimentParams, al, iteration, eval_dataset,
                  suggested_text_elements_for_labeling=None):
