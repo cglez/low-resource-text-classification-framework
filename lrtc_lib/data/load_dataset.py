@@ -25,6 +25,14 @@ def load(dataset: str, force_new: bool = False):
 
 
 if __name__ == '__main__':
+    import argparse
+
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
-    dataset_name = 'polarity'
-    load(dataset=dataset_name)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("datasets", nargs='+', help="List of datasets to load")
+    parser.add_argument("--force-new", type=bool, help="Force a new loading of the datasets")
+    args = parser.parse_args()
+
+    for dataset_name in args.datasets:
+        load(dataset=dataset_name, force_new=args.force_new)
