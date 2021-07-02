@@ -72,7 +72,7 @@ if __name__ == '__main__':
 
     results_file_path, results_file_path_aggregated = res_handler.get_results_files_paths(
         experiment_name=experiment_name, start_timestamp=start_timestamp,
-        repeats_num=num_experiment_repeats - starting_repeat_id)
+        repeats_num=num_experiment_repeats - starting_repeat_id + 1)
 
     logging.basicConfig(
         level=logging.INFO,
@@ -121,7 +121,7 @@ if __name__ == '__main__':
                             results_all_repeats[al][iteration].append(results_per_active_learning[al][iteration])
 
                 # aggregate the results of a single active learning iteration over num_experiment_repeats
-                if num_experiment_repeats - starting_repeat_id > 1:
+                if num_experiment_repeats - starting_repeat_id + 1 > 1:
                     agg_res_dicts = res_handler.avg_res_dicts(results_all_repeats)
                     res_handler.save_results(results_file_path_aggregated, agg_res_dicts)
     plot_results([results_file_path])
