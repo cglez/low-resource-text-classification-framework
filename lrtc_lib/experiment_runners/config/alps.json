@@ -1,14 +1,14 @@
 {
-    "experiment_name": "balanced",
+    "experiment_name": "alps",
     "runner": {
         "type": "ExperimentRunnerBalanced",
         "params": {
             "first_model_positives_num": 100,
-            "active_learning_suggestions_num": 50
+            "active_learning_suggestions_num": 100
         }
     },
     "num_experiment_repeats": 5,
-    "active_learning_iterations_num": 5,
+    "active_learning_iterations_num": 10,
     "active_learning_strategies": [
         "RANDOM",
         "RETROSPECTIVE",
@@ -25,17 +25,8 @@
         "NB": {}
     },
     "datasets_categories_and_config": {
-        "ag_news": [
-            "1"
-        ],
-        "cola": [
-            "0"
-        ],
-        "polarity": [
-            "positive"
-        ],
-        "subjectivity": [
-            "subjective"
+        "imdb": [
+            "pos"
         ]
     }
 }
