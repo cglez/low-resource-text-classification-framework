@@ -7,10 +7,10 @@ realpath() {
 }
 fi
 
-curr_dir=`dirname $0`
-base_dir=`realpath "${curr_dir}"/data/`
-raw_dir=`realpath "${base_dir}"/raw/`
-python_path=`realpath "${curr_dir}"/../`
+curr_dir=$(dirname "$0")
+base_dir=$(realpath "${curr_dir}"/data)
+raw_dir=$(realpath "${base_dir}"/raw)
+python_path=$(realpath "${curr_dir}"/..)
 
 if [ ! -d "$raw_dir" ]; then
     mkdir "$raw_dir"
@@ -136,18 +136,10 @@ fi
 
 if [ -f "./isear/isear_data.csv" ]; then
   cd "$python_path"
-  python -c "import sys; import os; sys.path.append(os.getcwd()); os.chdir(os.path.join(os.getcwd(), 'lrtc_lib')); import lrtc_lib.data.load_dataset as loader; loader.load('isear')"
+  python -m lrtc_lib.data.load_dataset isear
 fi
 
 cd "$python_path"
-python -c "import sys; import os; sys.path.append(os.getcwd()); os.chdir(os.path.join(os.getcwd(), 'lrtc_lib'));
-import lrtc_lib.data.load_dataset as loader
-loader.load('polarity');
-loader.load('polarity_imbalanced_positive');
-loader.load('subjectivity');
-loader.load('subjectivity_imbalanced_subjective')
-loader.load('ag_news');
-loader.load('ag_news_imbalanced_1');
-loader.load('wiki_attack');
-loader.load('trec');
-loader.load('cola')"
+python -m lrtc_lib.data.load_dataset \
+    polarity polarity_imbalanced_positive subjectivity subjectivity_imbalanced_subjective \
+    ag_news ag_news_imbalanced_1 wiki_attack trec cola

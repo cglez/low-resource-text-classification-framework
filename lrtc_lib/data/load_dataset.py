@@ -21,7 +21,6 @@ def load(dataset: str, force_new: bool = False):
         if force_new:
             gold_labels_loader.clear_gold_labels_file(dataset_name)
         gold_labels_loader.load_gold_labels(dataset_name, force_new)
-        logging.info('-' * 60)
 
 
 if __name__ == '__main__':

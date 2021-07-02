@@ -16,6 +16,4 @@ class ImdbProcessor(CsvProcessor):
         super().__init__(dataset_name='imdb'+imbalanced_postfix, dataset_part=dataset_part)
 
     def _get_all_categories(self):
-        train_file = os.path.join(self.RAW_DATA_BASE_DIR, 'imdb', 'train.csv')
-        df = pd.read_csv(train_file, encoding=self.encoding)
-        return sorted(df[self.label_col].unique())
+        return ['pos', 'neg']
