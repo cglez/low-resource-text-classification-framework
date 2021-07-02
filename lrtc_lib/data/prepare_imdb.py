@@ -8,9 +8,10 @@ import os
 import pandas as pd
 
 input_dir_path = './imdb'
+output_dir_path = os.path.join('..', 'available_datasets', 'imdb')
 parts = ['train', 'dev', 'test']
 
 for part in parts:
-    partition = pd.read_csv(os.path.join(input_dir_path, part + '.tsv'), sep='\t', names=['text', 'label'])
-    print(f'{part} size = {len(partition)}')
-    partition.to_csv(os.path.join(input_dir_path, part + '.csv'), columns=['label', 'text'])
+    dataset_part = pd.read_csv(os.path.join(input_dir_path, part + '.tsv'), sep='\t', names=['text', 'label'])
+    print(f'{part} size = {len(dataset_part)}')
+    dataset_part.to_csv(os.path.join(output_dir_path, part + '.csv'), columns=['label', 'text'])

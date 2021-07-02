@@ -30,10 +30,9 @@ if [ ! -f imdb/test.tsv ] ; then
   mv train.tsv dev.tsv test.tsv imdb/
 fi
 
-if [ ! -f imdb/test.csv ] ; then
-  python "$base_dir"/prepare_imdb.py
+if [ -f imdb/test.tsv ] && [ ! -f ../available_datasets/imdb/test.csv ] ; then
   mkdir -p "$avail_dir"/imdb
-  cp imdb/train.csv imdb/dev.csv imdb/test.csv "$avail_dir"/imdb
+  python "$base_dir"/prepare_imdb.py
 fi
 
 cd "$python_path"
