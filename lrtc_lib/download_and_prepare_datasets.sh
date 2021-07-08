@@ -11,6 +11,7 @@ curr_dir=$(dirname "$0")
 base_dir=$(realpath "${curr_dir}"/data)
 raw_dir=$(realpath "${base_dir}"/raw)
 python_path=$(realpath "${curr_dir}"/..)
+force_new="" && [ "$1" = "--force-new" ] && force_new="$1"
 
 if [ ! -d "$raw_dir" ]; then
     mkdir "$raw_dir"
@@ -140,6 +141,6 @@ if [ -f "./isear/isear_data.csv" ]; then
 fi
 
 cd "$python_path"
-python -m lrtc_lib.data.load_dataset \
+python -m lrtc_lib.data.load_dataset $force_new \
     polarity polarity_imbalanced_positive subjectivity subjectivity_imbalanced_subjective \
     ag_news ag_news_imbalanced_1 wiki_attack trec cola

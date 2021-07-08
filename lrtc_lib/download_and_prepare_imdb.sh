@@ -8,10 +8,11 @@ realpath() {
 fi
 
 curr_dir=$(dirname "$0")
-base_dir=$(realpath "${curr_dir}"/data/)
-raw_dir=$(realpath "${base_dir}"/raw/)
+base_dir=$(realpath "${curr_dir}"/data)
+raw_dir=$(realpath "${base_dir}"/raw)
 avail_dir=$(realpath "$base_dir"/available_datasets)
-python_path=$(realpath "${curr_dir}"/../)
+python_path=$(realpath "${curr_dir}"/..)
+force_new="" && [ "$1" = "--force-new" ] && force_new="$1"
 
 if [ ! -d "$raw_dir" ]; then
     mkdir "$raw_dir"
@@ -36,4 +37,4 @@ if [ -f imdb/test.tsv ] && [ ! -f ../available_datasets/imdb/test.csv ] ; then
 fi
 
 cd "$python_path"
-python -m lrtc_lib.data.load_dataset imdb
+python -m lrtc_lib.data.load_dataset $force_new imdb
