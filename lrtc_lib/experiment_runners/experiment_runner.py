@@ -77,7 +77,7 @@ class ExperimentRunner(object, metaclass=abc.ABCMeta):
         orchestrator_api.set_training_set_selection_strategy(TrainingSetSelectionStrategy.ALL_LABELED)
 
     def run(self, config: ExperimentParams, active_learning_iterations_num: int, results_file_path: str,
-            train_full_model: bool = True, delete_workspaces: bool = True):
+            train_full_model: bool = False, delete_workspaces: bool = True):
 
         # key: active learning name, value: list of results over iterations (first/full models have no iterations)
         results_per_active_learning = defaultdict(dict)
