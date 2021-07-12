@@ -16,14 +16,15 @@ from lrtc_lib.experiment_runners.experiments_results_handler import TRAIN_TOTAL_
 
 sns.set_theme()
 sns.set_palette("tab10")
+palette = iter(sns.color_palette())
 
 
 def plot_metric(dataset, metric, df, output_path, plot_uncertainty=False, show=False):
     """
     Plot the results in the most basic fashion. No complex color markers labels etc.
     """
-    models = sorted(df["model"].unique())
-    als = sorted(df["AL"].unique())
+    models = df["model"].unique()
+    als = df["AL"].unique()
     x_col = TRAIN_TOTAL_COUNT_HEADER
     for model in models:
         for al in als:
@@ -33,7 +34,7 @@ def plot_metric(dataset, metric, df, output_path, plot_uncertainty=False, show=F
                 full_model_df_all = df[(df["model"] == model) & (df["AL"] == ExperimentRunner.FULL_MODEL)]
                 full_model_df = full_model_df_all[metric]
                 top_line = full_model_df.mean()
-                plt.axhline(top_line, linestyle='dashed')
+                plt.axhline(top_line, linestyle='dotted', color=next(palette), label=f"{model}")
                 continue
             model_df_all = df[(df["model"] == model) & ((df["AL"] == al) | (df["AL"] == ExperimentRunner.NO_AL))]
             if len(model_df_all[model_df_all['AL'] != ExperimentRunner.NO_AL]) == 0:
@@ -41,10 +42,11 @@ def plot_metric(dataset, metric, df, output_path, plot_uncertainty=False, show=F
             model_df = model_df_all[[x_col, metric]]
             model_df = model_df.dropna(axis=0)
             al_name = get_strategy_name_in_paper(al)
-            ax = sns.lineplot(data=model_df, x=x_col, y=metric, ci=95 if plot_uncertainty else None,
-                              label=f"{model}:{al_name}", linestyle='solid' if al != 'RANDOM' else 'dashed')
+            sns.lineplot(data=model_df, x=x_col, y=metric, ci=95 if plot_uncertainty else None,
+                         label=f"{model}:{al_name}", linestyle='solid' if al != 'RANDOM' else 'dashed')
     plt.title(dataset)
-    plt.savefig(os.path.join(output_path, f"{dataset}_{metric}"))
+    plt.legend(bbox_to_anchor=(1, 1), loc="upper left")
+    plt.savefig(os.path.join(output_path, f"{dataset}_{metric}"), bbox_inches='tight')
     if show:
         plt.show()
     plt.close()
