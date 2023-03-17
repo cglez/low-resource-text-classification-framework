@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- Generic experiment runner based on configuration JSON files.
+
 ## [0.0.1] - 2020-11-12
 
 ### Added
