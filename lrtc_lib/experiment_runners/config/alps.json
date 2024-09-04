@@ -1,0 +1,32 @@
+{
+    "experiment_name": "alps",
+    "runner": {
+        "type": "ExperimentRunnerBalanced",
+        "params": {
+            "first_model_positives_num": 100,
+            "active_learning_suggestions_num": 100
+        }
+    },
+    "num_experiment_repeats": 5,
+    "active_learning_iterations_num": 10,
+    "active_learning_strategies": [
+        "RANDOM",
+        "RETROSPECTIVE",
+        "HARD_MINING",
+        "GREEDY_CORE_SET",
+        "DAL",
+        "PERCEPTRON_ENSEMBLE",
+        "DROPOUT_PERCEPTRON"
+    ],
+    "classification_models": {
+        "HFBERT": {
+            "metric": "accuracy"
+        },
+        "NB": {}
+    },
+    "datasets_categories_and_config": {
+        "imdb": [
+            "pos"
+        ]
+    }
+}

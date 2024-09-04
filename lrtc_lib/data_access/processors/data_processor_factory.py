@@ -5,6 +5,7 @@
 
 from lrtc_lib.data_access.processors.process_ag_new_data import AgNewsProcessor
 from lrtc_lib.data_access.processors.process_cola_data import ColaProcessor
+from lrtc_lib.data_access.processors.process_imdb_data import ImdbProcessor
 from lrtc_lib.data_access.processors.process_isear_data import IsearProcessor
 from lrtc_lib.data_access.processors.process_polarity_data import PolarityProcessor
 from lrtc_lib.data_access.processors.process_trec_data import TrecProcessor
@@ -44,6 +45,8 @@ def get_data_processor(dataset_name: str) -> DataProcessorAPI:
         return ColaProcessor(dataset_part=dataset_part)
     if dataset_source == 'wiki_attack':
         return WikiAttackProcessor(dataset_part=dataset_part)
+    if dataset_source == 'imdb':
+        return ImdbProcessor(dataset_part=dataset_part)
     else:
         raise ValueError(f'I cannot find a data processor for dataset {dataset_source}')
 

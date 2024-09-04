@@ -33,6 +33,7 @@ if __name__ == '__main__':
     parser.add_argument("--datasets", nargs='+', help="List of datasets to use")
     parser.add_argument("--models", nargs='+', help="List of classifier model types to use")
     parser.add_argument("--strategies", nargs='+', help="List of active learning strategies to use")
+    parser.add_argument("--train-full-model", action='store_true', help="Train models with full annotated datasets")
     args = parser.parse_args()
 
     with open(args.config) as file:
@@ -72,7 +73,7 @@ if __name__ == '__main__':
 
     results_file_path, results_file_path_aggregated = res_handler.get_results_files_paths(
         experiment_name=experiment_name, start_timestamp=start_timestamp,
-        repeats_num=num_experiment_repeats - starting_repeat_id)
+        repeats_num=num_experiment_repeats - starting_repeat_id + 1)
 
     logging.basicConfig(
         level=logging.INFO,
@@ -115,13 +116,14 @@ if __name__ == '__main__':
                         config,
                         active_learning_iterations_num=active_learning_iterations_num,
                         results_file_path=results_file_path,
-                        delete_workspaces=True)
+                        delete_workspaces=True,
+                        train_full_model=args.train_full_model)
                     for al in results_per_active_learning:
                         for iteration in results_per_active_learning[al]:
                             results_all_repeats[al][iteration].append(results_per_active_learning[al][iteration])
 
                 # aggregate the results of a single active learning iteration over num_experiment_repeats
-                if num_experiment_repeats - starting_repeat_id > 1:
+                if num_experiment_repeats - starting_repeat_id + 1 > 1:
                     agg_res_dicts = res_handler.avg_res_dicts(results_all_repeats)
                     res_handler.save_results(results_file_path_aggregated, agg_res_dicts)
     plot_results([results_file_path])

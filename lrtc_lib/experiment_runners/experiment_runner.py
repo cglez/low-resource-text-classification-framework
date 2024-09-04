@@ -58,6 +58,7 @@ def compute_batch_scores(config, elements):
 
 class ExperimentRunner(object, metaclass=abc.ABCMeta):
     NO_AL = 'no_active_learning'
+    FULL_MODEL = "full_model"
 
     def __init__(self, first_model_positives_num: int, first_model_negatives_num: int,
                  active_learning_suggestions_num: int):
@@ -76,17 +77,30 @@ class ExperimentRunner(object, metaclass=abc.ABCMeta):
         orchestrator_api.set_training_set_selection_strategy(TrainingSetSelectionStrategy.ALL_LABELED)
 
     def run(self, config: ExperimentParams, active_learning_iterations_num: int, results_file_path: str,
-            delete_workspaces: bool = True):
+            train_full_model: bool = False, delete_workspaces: bool = True):
 
-        # key: active learning name, value: list of results oevr iterations (first model has no iterations)
+        # key: active learning name, value: list of results over iterations (first/full models have no iterations)
         results_per_active_learning = defaultdict(dict)
-        # train first model
         iteration = 0
+        original_workspace_id = config.workspace_id
+
+        # train full model
+        if train_full_model:
+            config.workspace_id = original_workspace_id + '-full'
+            res_dict = self.train_full_model(config=config)
+            res_handler.save_results(results_file_path, [res_dict])
+            results_per_active_learning[self.FULL_MODEL][iteration] = res_dict
+            if delete_workspaces:
+                orchestrator_api.delete_workspace(config.workspace_id)
+            config.workspace_id = original_workspace_id
+
+        if active_learning_iterations_num < 0:
+            return results_per_active_learning
+
+        # train first model
         res_dict = self.train_first_model(config=config)
         res_handler.save_results(results_file_path, [res_dict])
         results_per_active_learning[self.NO_AL][iteration] = res_dict
-
-        original_workspace_id = config.workspace_id
 
         for al in config.active_learning_strategies:
             orchestrator_api.set_active_learning_strategy(al)
@@ -164,6 +178,58 @@ class ExperimentRunner(object, metaclass=abc.ABCMeta):
         res_dict.update(res_handler.generate_reproducibility_dict(new_model_id, random_seed=random_seed))
 
         logging.info(f'Evaluation on dataset: {eval_dataset}, iteration: 0, first model (id: {new_model_id}) '
+                     f'repeat: {config.repeat_id}, is: {res_dict}\t'
+                     f'workspace: {config.workspace_id}')
+
+        return res_dict
+
+    def train_full_model(self, config: ExperimentParams):
+        iteration_start = timer()
+
+        if orchestrator_api.workspace_exists(config.workspace_id):
+            orchestrator_api.delete_workspace(config.workspace_id)
+
+        orchestrator_api.create_workspace(config.workspace_id, config.train_dataset_name,
+                                          dev_dataset_name=config.dev_dataset_name)
+        orchestrator_api.create_new_category(config.workspace_id, config.category_name, "No description")
+
+        dev_text_elements_uris = orchestrator_api.get_all_text_elements_uris(config.dev_dataset_name)
+        dev_text_elements_and_labels = oracle_data_access_api.get_gold_labels(config.dev_dataset_name,
+                                                                              dev_text_elements_uris)
+        if dev_text_elements_and_labels is not None:
+            orchestrator_api.set_labels(config.workspace_id, dev_text_elements_and_labels)
+
+        start = timer()
+        uris = self.data_access.get_all_text_elements_uris(config.train_dataset_name)
+        uris_with_labels = \
+            oracle_data_access_api.get_gold_labels(config.train_dataset_name, uris, config.category_name)
+        orchestrator_api.set_labels(config.workspace_id, uris_with_labels)
+        end = timer()
+        selection_runtime = end - start
+
+        # train full model
+        logging.info(f'Starting full model training (model: {config.model.name})\tworkspace: {config.workspace_id}')
+        start = timer()
+        new_model_id = orchestrator_api.train(config.workspace_id, config.category_name, config.model,
+                                              train_params=config.train_params)
+        end = timer()
+        train_runtime = end - start
+        if new_model_id is None:
+            raise Exception(f'a new model was not trained\tworkspace: {config.workspace_id}')
+
+        eval_dataset = config.test_dataset_name
+        start = timer()
+        res_dict = self.evaluate(config, al=self.FULL_MODEL, iteration=0, eval_dataset=eval_dataset)
+        end = timer()
+        evaluation_runtime = end - start
+
+        iteration_runtime = end - iteration_start
+        res_dict.update(self.generate_al_batch_dict(config))  # ensures AL-related keys are in the results dictionary
+        res_dict.update(res_handler.generate_runtime_dict(iteration_runtime, selection_runtime, train_runtime,
+                                                          evaluation_runtime))
+        res_dict.update(res_handler.generate_reproducibility_dict(new_model_id))
+
+        logging.info(f'Evaluation on dataset: {eval_dataset}, iteration: 0, full model (id: {new_model_id}) '
                      f'repeat: {config.repeat_id}, is: {res_dict}\t'
                      f'workspace: {config.workspace_id}')
 
