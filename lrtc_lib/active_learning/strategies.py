@@ -67,5 +67,8 @@ strategy_names_in_paper = {
 
 
 def get_strategy_name_in_paper(strategy_name: str) -> str:
-    strategy = getattr(ActiveLearningStrategies, strategy_name)
-    return strategy_names_in_paper[strategy]
+    if hasattr(ActiveLearningStrategies, strategy_name):
+        strategy = getattr(ActiveLearningStrategies, strategy_name)
+        return strategy_names_in_paper[strategy]
+    else:
+        return strategy_name

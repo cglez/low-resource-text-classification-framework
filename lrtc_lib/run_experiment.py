@@ -123,7 +123,7 @@ if __name__ == '__main__':
                             results_all_repeats[al][iteration].append(results_per_active_learning[al][iteration])
 
                 # aggregate the results of a single active learning iteration over num_experiment_repeats
-                if num_experiment_repeats - starting_repeat_id + 1 > 1:
-                    agg_res_dicts = res_handler.avg_res_dicts(results_all_repeats)
-                    res_handler.save_results(results_file_path_aggregated, agg_res_dicts)
+                #if num_experiment_repeats - starting_repeat_id + 1 > 1:
+                #    agg_res_dicts = res_handler.avg_res_dicts(results_all_repeats)
+                #    res_handler.save_results(results_file_path_aggregated, agg_res_dicts)
     plot_results([results_file_path])

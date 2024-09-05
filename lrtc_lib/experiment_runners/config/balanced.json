@@ -4,7 +4,7 @@
         "type": "ExperimentRunnerBalanced",
         "params": {
             "first_model_positives_num": 100,
-            "active_learning_suggestions_num": 50
+            "active_learning_suggestions_num": 100
         }
     },
     "num_experiment_repeats": 5,
@@ -36,6 +36,9 @@
         ],
         "subjectivity": [
             "subjective"
+        ],
+        "imdb": [
+            "pos"
         ]
     }
 }

@@ -79,11 +79,11 @@ def get_results_files_paths(experiment_name, start_timestamp, repeats_num=None, 
     os.makedirs(res_dir, exist_ok=True)
 
     experiment_name = experiment_name if prefix is None else prefix + '_' + experiment_name
-    results_file_path_all_experiment_repeats = os.path.join(res_dir, f'{experiment_name}_all_repeats.csv')
+    results_file_path_all_experiment_repeats = os.path.join(res_dir, f'{experiment_name}.csv')
 
     results_file_path_aggregated = None
     if repeats_num is not None and repeats_num > 1:
-        results_file_path_aggregated = os.path.join(res_dir, f'{experiment_name}_{repeats_num}_repeats_avg.csv')
+        results_file_path_aggregated = os.path.join(res_dir, f'{experiment_name}_{repeats_num}_avg.csv')
 
     return results_file_path_all_experiment_repeats, results_file_path_aggregated
 
