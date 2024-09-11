@@ -8,6 +8,8 @@ import pickle
 import shutil
 import uuid
 import os
+import glob
+
 import numpy as np
 from sklearn.naive_bayes import MultinomialNB
 
@@ -139,18 +141,15 @@ class TrainAndInferNB(TrainAndInferAPI):
         return ModelStatus.ERROR
 
     def delete_model(self, model_id):
-        train_file = self.train_file_by_id(model_id)
-        model_file = self.model_file_by_id(model_id)
-        params_file = self.params_file_by_id(model_id)
-        model_dir = self.get_model_dir_by_id(model_id)
-        if os.path.isfile(train_file):
-            os.remove(train_file)
-        if os.path.isfile(model_file):
-            os.remove(model_file)
-        if os.path.isfile(params_file):
-            os.remove(params_file)
-        if os.path.isdir(model_dir):
-            shutil.rmtree(model_dir)
+        pattern = os.path.join(self.get_models_dir(), f'*{model_id}*')
+        predictions_cache = os.path.join(self.get_models_dir(), 'predictions_cache', f'{model_id}.json')
+        for path in glob.glob(pattern):
+            if os.path.isfile(path):
+                os.remove(path)
+            elif os.path.isdir(path):
+                shutil.rmtree(path)
+        if os.path.isfile(predictions_cache):
+            os.remove(predictions_cache)
 
 
 if __name__ == '__main__':
