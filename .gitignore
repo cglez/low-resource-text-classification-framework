@@ -111,3 +111,5 @@ lrtc_lib/data/available_datasets
 lrtc_lib/data/data_access_dumps
 lrtc_lib/data/oracle_access_dumps
 lrtc_lib/data/raw
+
+/gpu*
