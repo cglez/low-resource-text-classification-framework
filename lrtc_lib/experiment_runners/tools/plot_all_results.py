@@ -1,6 +1,8 @@
 # LICENSE: Apache License 2.0 (Apache-2.0)
 # http://www.apache.org/licenses/LICENSE-2.0
 
+import os
+
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -62,7 +64,7 @@ marker_sizes = {
 }
 
 
-def plot_results(write=False):
+def plot_results(write=False, full_line=True):
     #df_all = pd.read_csv('lrtc_lib/output/experiments/all_results.csv')
     df_all = merge_results()
 
@@ -73,21 +75,22 @@ def plot_results(write=False):
         for dataset in datasets:
             df = df_all[(df_all["dataset"] == dataset) & (df_all['scenario'] == scenario)]
             metric = "accuracy" if scenario == "balanced" else "f1"
-
             models = sorted(df["model"].unique())
 
             for model in models:
-                if model == 'NB':
-                    continue
+                #if model == 'NB':
+                #    continue
                 model_df = df[df["model"] == model]
                 if model_df.empty:
                     continue
+                model_name = 'BERT' if model == 'HFBERT' else model
 
                 full = df_all[(df_all['scenario'] == 'full') & (df_all["dataset"] == dataset)
                               & (df_all['model'] == model)]
                 n_full = len(full)
-                full = full.mean()
-                plt.axhline(full[metric], linestyle='dotted', color=colors['full'], label=None)
+                if full_line:
+                    full = full.mean()
+                    plt.axhline(full[metric], linestyle='dotted', color=colors['full'], label=None)
 
                 print(scenario, dataset, model, len(model_df), f'+{n_full}')
 
@@ -111,19 +114,53 @@ def plot_results(write=False):
 
                 plt.title(dataset_names[dataset])
                 plt.ylabel('F1' if metric == 'f1' else metric)
-                plt.xlabel('# samples')
+                plt.xlabel('# training samples')
 
                 if write:
-                    plt.savefig(f"lrtc_lib/output/experiments/all_results/{scenario}_{model}_{dataset}.pdf")
+                    os.makedirs('lrtc_lib/output/figures', exist_ok=True)
+                    plt.savefig(f"lrtc_lib/output/figures/{scenario}_{model_name.lower()}_{dataset}.pdf")
                 else:
                     plt.show()
                 plt.close()
+
+
+def plot_legends(write=False):
+    df_all = merge_results()
+
+    models = sorted(df_all["model"].unique())
+    for model in models:
+        model_name = 'BERT' if model == 'HFBERT' else model
+
+        als = df_all[df_all['model'] == model]['AL'].unique().tolist()
+        als = [x for x in als if x not in ['no_active_learning', 'full_model']]
+        als.remove('RANDOM')
+        als += ['RANDOM']
+
+        ax = plt.subplot()
+        ax.set_axis_off()
+
+        handles = []
+        for al in als:
+            line, = ax.plot([], color=colors[al], label=get_strategy_name_in_paper(al),
+                            marker=markers[al], markersize=marker_sizes[al],
+                            linestyle='dashed' if al == "RANDOM" else 'solid')
+            handles.append(line)
+
+        ax.legend(handles=handles)
+
+        if write:
+            os.makedirs('lrtc_lib/output/figures', exist_ok=True)
+            plt.savefig(f"lrtc_lib/output/figures/legend_{model_name}.pdf")
+        else:
+            plt.show()
+        plt.close()
 
 
 if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser(description="Plot the results in the given CSV files, per dataset and metric")
+    parser.add_argument('--write', default=False, action='store_true')
     args = parser.parse_args()
 
-    plot_results()
+    plot_results(write=args.write)
