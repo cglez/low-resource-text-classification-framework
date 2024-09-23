@@ -71,7 +71,7 @@ def plot_results(write=False, full_line=True):
     datasets = df_all["dataset"].unique()
     x_col = TRAIN_TOTAL_COUNT_HEADER
 
-    for scenario in 'balanced', 'imbalanced', 'query':
+    for scenario in 'balanced', 'imbalanced', 'query', 'real':
         for dataset in datasets:
             df = df_all[(df_all["dataset"] == dataset) & (df_all['scenario'] == scenario)]
             metric = "accuracy" if scenario == "balanced" else "f1"
@@ -115,6 +115,7 @@ def plot_results(write=False, full_line=True):
                 plt.title(dataset_names[dataset])
                 plt.ylabel('F1' if metric == 'f1' else metric)
                 plt.xlabel('# training samples')
+                plt.tight_layout()
 
                 if write:
                     os.makedirs('lrtc_lib/output/figures', exist_ok=True)

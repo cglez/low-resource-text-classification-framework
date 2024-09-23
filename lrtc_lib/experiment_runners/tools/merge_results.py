@@ -9,7 +9,7 @@ def merge_results() -> pd.DataFrame:
 
     for file in glob.glob('lrtc_lib/output/experiments/all_results/*.csv'):
         scenario = os.path.basename(file).split('_')[0]
-        assert scenario in ['full', 'balanced', 'imbalanced', 'query'], f'Invalid scenario: {scenario}'
+        assert scenario in ['full', 'balanced', 'imbalanced', 'query', 'real'], f'Invalid scenario: {scenario}'
 
         df = pd.read_csv(file)
         df['scenario'] = scenario
