@@ -34,9 +34,10 @@ colors = {
     'GREEDY_CORE_SET': palette[3],
     'DAL': palette[1],
     'DROPOUT_PERCEPTRON': palette[2],
-    'HARD_MINING': palette[0],
+    'HARD_MINING': palette[6],
     'PERCEPTRON_ENSEMBLE': palette[5],
-    'RETROSPECTIVE': palette[6],
+    'EGL': palette[0],
+    #'RETROSPECTIVE': palette[],
     'RANDOM': palette[4],
     'full': palette[7],
 }
@@ -45,9 +46,10 @@ markers = {
     'GREEDY_CORE_SET': '^',
     'DAL': '*',
     'DROPOUT_PERCEPTRON': 's',
-    'HARD_MINING': 'P',
+    'HARD_MINING': 'p',
     'PERCEPTRON_ENSEMBLE': 'D',
-    'RETROSPECTIVE': 'p',
+    'EGL': 'P',
+    #'RETROSPECTIVE': '',
     'RANDOM': 'o',
     'full': '',
 }
@@ -58,7 +60,8 @@ marker_sizes = {
     'DROPOUT_PERCEPTRON': 6,
     'HARD_MINING': 8,
     'PERCEPTRON_ENSEMBLE': 6,
-    'RETROSPECTIVE': 8,
+    'EGL': 8,
+    #'RETROSPECTIVE': 8,
     'RANDOM': 6,
     'full': 0,
 }
@@ -99,7 +102,7 @@ def plot_results(write=False, full_line=True):
                 als += ['RANDOM']
 
                 for al in als:
-                    if al == ExperimentRunner.NO_AL:
+                    if al in (ExperimentRunner.NO_AL, 'RETROSPECTIVE'):
                         continue
                     df_al = model_df[(model_df["AL"] == al) | (model_df["AL"] == ExperimentRunner.NO_AL)]
                     df_al = df_al[[x_col, metric]]
@@ -108,7 +111,7 @@ def plot_results(write=False, full_line=True):
                     if len(model_df_avg[x_col]) <= 1:
                         continue  # skip lines with a single point (e.g. incompatible AL-model pairs)
                     al_name = get_strategy_name_in_paper(al)
-                    sns.lineplot(data=df_al, x=x_col, y=metric, label=al_name, color=colors[al], err_style=None,
+                    sns.lineplot(data=df_al, x=x_col, y=metric, label=al_name, color=colors[al], ci=None,
                                  marker=markers[al], markersize=marker_sizes[al], markeredgewidth=0,
                                  linestyle='dashed' if al == "RANDOM" else 'solid')
 

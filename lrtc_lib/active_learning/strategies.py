@@ -56,8 +56,8 @@ def get_compatible_models(model_type, active_learning_strategy):
 
 strategy_names_in_paper = {
     ActiveLearningStrategies.RANDOM: "Random",
-    ActiveLearningStrategies.HARD_MINING: "EGL",
-    ActiveLearningStrategies.RETROSPECTIVE: "LC",
+    ActiveLearningStrategies.HARD_MINING: "LC",
+    ActiveLearningStrategies.RETROSPECTIVE: "LC_2",
     ActiveLearningStrategies.CORE_SET: "",
     ActiveLearningStrategies.GREEDY_CORE_SET: "Core-Set",
     ActiveLearningStrategies.DAL: "DAL",
